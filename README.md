@@ -10,3 +10,7 @@ O presente repositório serve para registro e desenvolvimento da aplicação mob
 
 - [Safe Travels - API](https://github.com/vicente-hofmeister/Safe-Travels-API)
 - [Safe Travels - Wiki](https://github.com/vicente-hofmeister/Safe-Travels-Wiki)
+
+## Documentos e link relevantes:
+
+- [Prototipação de telas](https://www.figma.com/design/K1rykzJuxcgNQqC5FVksnZ/TCC?node-id=0-1&t=RWspqD3vsWiYd08b-1)
