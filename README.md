@@ -14,3 +14,7 @@ O presente repositório serve para registro e desenvolvimento da aplicação mob
 ## Documentos e link relevantes:
 
 - [Prototipação de telas](https://www.figma.com/design/K1rykzJuxcgNQqC5FVksnZ/TCC?node-id=0-1&t=RWspqD3vsWiYd08b-1)
+
+## Configuração local
+
+Para testar no Expo com o servidor rodando na sua máquina, ajuste a variável `EXPO_PUBLIC_API_URL` no arquivo `.env` para o IPv4 da sua rede local com a porta do backend.
