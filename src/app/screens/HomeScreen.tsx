@@ -1,11 +1,47 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { View, Text, StyleSheet } from "react-native";
 import { theme } from "../../theme";
+import { locationTrackingService } from "../services/location";
 
 export function HomeScreen() {
+  const [locationText, setLocationText] = useState("Carregando localizacao...");
+
+  useEffect(() => {
+    let isMounted = true;
+
+    async function loadLocation() {
+      try {
+        const point = await locationTrackingService.captureCurrentPosition();
+
+        if (!isMounted) {
+          return;
+        }
+
+        if (!point) {
+          setLocationText("Permissao de localizacao negada.");
+          return;
+        }
+
+        setLocationText(`Lat: ${point.latitude.toFixed(6)} | Lon: ${point.longitude.toFixed(6)}`);
+      } catch (error) {
+        if (isMounted) {
+          const message =
+            error instanceof Error ? error.message : "Nao foi possivel obter a localizacao.";
+          setLocationText(message);
+        }
+      }
+    }
+
+    void loadLocation();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
   return (
     <View style={styles.base_container}>
-      <Text style={theme.typography.title}>Home</Text>
+      <Text style={theme.typography.body}>{locationText}</Text>
     </View>
   );
 }

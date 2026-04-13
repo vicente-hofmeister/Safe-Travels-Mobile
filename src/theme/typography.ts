@@ -11,6 +11,7 @@ export const typography = {
   body: {
     fontSize: 16,
     fontFamily: "Montserrat",
+    fontWeight: "bold" as const,
     color: colors.primary_7,
   },
   caption: {
