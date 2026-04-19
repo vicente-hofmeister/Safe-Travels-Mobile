@@ -1,39 +1,14 @@
-import React, { useState } from "react";
+import React from "react";
 import { View, Text, StyleSheet, Pressable } from "react-native";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import type { RootStackParamList } from "../navigation/RootNavigator";
 import { theme } from "../../theme";
 import { Image } from "expo-image";
 import logo from "../../../assets/images/safe-travels-logo.png";
-import { locationTrackingService } from "../services/location";
 
 type Props = NativeStackScreenProps<RootStackParamList, "Login">;
-const MOCK_USER_ID = "mock-user-mobile";
 
 export function LoginScreen({ navigation }: Props) {
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [submitError, setSubmitError] = useState<string | null>(null);
-
-  async function handleEnter(): Promise<void> {
-    if (isSubmitting) {
-      return;
-    }
-
-    setIsSubmitting(true);
-    setSubmitError(null);
-
-    try {
-      await locationTrackingService.registerCurrentPosition(MOCK_USER_ID);
-      navigation.navigate("Home");
-    } catch (error) {
-      setSubmitError(
-        error instanceof Error ? error.message : "Nao foi possivel enviar a localizacao.",
-      );
-    } finally {
-      setIsSubmitting(false);
-    }
-  }
-
   return (
     <View style={styles.base_container}>
       <View style={styles.logo_container}>
@@ -46,19 +21,16 @@ export function LoginScreen({ navigation }: Props) {
       <View style={styles.buttons_container}>
         <Pressable
           style={styles.login_button}
-          onPress={() => void handleEnter()}
-          disabled={isSubmitting}
+          onPress={() => navigation.navigate("LoginForm")}
         >
           <Text style={styles.login_text}>Log in</Text>
         </Pressable>
         <Pressable
           style={styles.register_button}
-          onPress={() => void handleEnter()}
-          disabled={isSubmitting}
+          onPress={() => navigation.navigate("Register")}
         >
           <Text style={styles.register_text}>Register</Text>
         </Pressable>
-        {submitError ? <Text style={styles.error_text}>{submitError}</Text> : null}
       </View>
     </View>
   );
@@ -115,9 +87,5 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: "bold",
     color: theme.colors.primary_7,
-  },
-  error_text: {
-    color: "#A61B1B",
-    textAlign: "center",
   },
 });
