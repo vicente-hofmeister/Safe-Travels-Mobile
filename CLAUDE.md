@@ -7,7 +7,7 @@ TCC de Sistemas de Informação (PUCRS) — Vicente Hofmeister.
 Sistema colaborativo para compartilhamento de localização em tempo real durante viagens em grupo, com foco em conectividade limitada, segurança e privacidade.
 
 Repositórios relacionados:
-- [Safe-Travels-API](https://github.com/vicente-hofmeister/Safe-Travels-API)
+- [Safe-Travels-API](https://github.com/vicente-hofmeister/Safe-Travels-API) — local em `../Safe-Travels-API`
 - [Safe-Travels-Wiki](https://github.com/vicente-hofmeister/Safe-Travels-Wiki)
 
 Protótipo de telas (Figma): https://www.figma.com/design/K1rykzJuxcgNQqC5FVksnZ/TCC
@@ -46,6 +46,7 @@ Protótipo de telas (Figma): https://www.figma.com/design/K1rykzJuxcgNQqC5FVksnZ
 | react-native | 0.81.5 |
 | @react-navigation/native | ^7.1.28 |
 | @react-navigation/native-stack | ^7.12.0 |
+| @react-navigation/bottom-tabs | ^7.x |
 | expo-location | ~19.0.8 |
 | expo-font | ~14.0.11 |
 | expo-image | ~3.0.11 |
@@ -55,6 +56,7 @@ Protótipo de telas (Figma): https://www.figma.com/design/K1rykzJuxcgNQqC5FVksnZ
 | react-native-safe-area-context | ~5.6.0 |
 | react-native-svg | 15.12.1 |
 | react-native-svg-transformer | ^1.5.3 |
+| react-native-maps | (versão instalada via `expo install`) |
 | @expo-google-fonts/league-spartan | ^0.4.2 |
 
 ### Dependências de desenvolvimento
@@ -93,7 +95,6 @@ expo --version  # confirmar instalação
 ```bash
 git clone https://github.com/vicente-hofmeister/Safe-Travels-Mobile.git
 cd Safe-Travels-Mobile
-git checkout basic_auth
 npm install
 ```
 
@@ -139,28 +140,38 @@ curl http://localhost:3000/health
 | Branch | Propósito |
 |---|---|
 | `main` | Último código estável |
-| `basic_auth` | Branch ativa de desenvolvimento — fluxo de autenticação básica |
-
-> Sempre desenvolva a partir de `basic_auth`. Não altere `main` diretamente.
+| `map-view` | Branch ativa — navegação por abas + tela de mapa |
 
 ---
 
 ## Estrutura do projeto
 
 ```
-App.tsx                        # Entry point — carrega fontes e monta NavigationContainer
+App.tsx                        # Entry point — SafeAreaProvider, fontes, NavigationContainer
 src/
   app/
     navigation/
-      RootNavigator.tsx        # Stack navigator (Login → Home)
+      RootNavigator.tsx        # Stack navigator (telas de auth → TabNavigator)
+      TabNavigator.tsx         # Bottom tab navigator (Início, Mapa)
     screens/
-      LoginScreen.tsx          # Tela de login/registro (atualmente com mock de userId)
-      HomeScreen.tsx           # Tela home — exibe coordenadas capturadas
+      LoginScreen.tsx          # Tela inicial — botões Log in / Criar conta
+      LoginFormScreen.tsx      # Formulário de login (email + senha)
+      RegisterScreen.tsx       # Formulário de cadastro
+      HomeScreen.tsx           # Tela Início — exibe coordenadas capturadas
+      MapScreen.tsx            # Tela Mapa — Google Maps com marcadores de usuários
+      mapStyle.ts              # Estilo customizado do Google Maps (paleta do tema)
+    components/
+      PasswordInput.tsx        # Input de senha com toggle mostrar/ocultar
     services/
+      auth/
+        authApi.ts             # Chamadas HTTP de autenticação
+        authService.ts         # Lógica de login/registro
+        authStorage.ts         # Persistência de token/usuário
+        index.ts               # Re-exports
       location/
         index.ts               # Re-export do serviço
-        locationTrackingService.ts  # Classe principal de rastreamento (captura, watch, storage)
-        locationApi.ts         # Integração HTTP com a API (POST /location/register)
+        locationTrackingService.ts  # Singleton de rastreamento (captura, watch, storage)
+        locationApi.ts         # HTTP: POST /location/register, GET /location/latest
         locationStorage.ts     # Persistência local com AsyncStorage
         locationTypes.ts       # Tipos compartilhados de localização
   theme/                       # Design tokens (cores, tipografia, espaçamentos)
@@ -171,11 +182,86 @@ assets/
 
 ---
 
-## Fluxo atual (branch basic_auth)
+## Fluxo atual (branch map-view)
 
-1. **LoginScreen** — ao pressionar "Log in" ou "Register", captura a localização atual e envia para a API via `locationTrackingService.registerCurrentPosition(userId)`
-   - Atualmente usa `MOCK_USER_ID = "mock-user-mobile"` — substituir pelo ID real do usuário autenticado quando o fluxo de auth estiver completo
-2. **HomeScreen** — exibe as coordenadas (lat/lon) capturadas em tempo real via `locationTrackingService.captureCurrentPosition()`
+1. **LoginScreen** → escolhe entre "Log in" e "Criar conta"
+2. **LoginFormScreen** → formulário de login; navega para `Home` via `navigation.reset`
+3. **RegisterScreen** → formulário de cadastro; navega para `Home` via `navigation.reset`
+4. **TabNavigator** (montado como tela `Home` no stack):
+   - **Aba Início** → `HomeScreen` — exibe coordenadas capturadas via `locationTrackingService`
+   - **Aba Mapa** → `MapScreen` — Google Maps com marcadores de todos os usuários
+
+---
+
+## Tela de Mapa (`MapScreen`)
+
+- Busca posição própria (`locationTrackingService.captureCurrentPosition()`) e últimas localizações de todos os usuários (`GET /location/latest`) em paralelo com `Promise.all`
+- Centraliza o mapa na posição do próprio usuário
+- Renderiza um `Marker` por usuário com:
+  - **Título:** `name` do usuário
+  - **Descrição:** `@username · horário da última captura`
+  - **Cor do pin:** `secondary_3` (`#A99942`)
+- Usa `PROVIDER_GOOGLE` explicitamente (necessário para `customMapStyle` funcionar)
+- Estilo customizado definido em `mapStyle.ts` seguindo a paleta do tema
+
+### Paleta do mapa
+
+| Elemento | Token | Hex |
+|---|---|---|
+| Fundo base / terreno | `neutral_2` | `#C3C9C9` |
+| Ruas (fill) | `neutral_1` | `#EDF1F1` |
+| Ruas (stroke) | `neutral_2` | `#C3C9C9` |
+| Água | `tertiary_2` | `#87D6D0` |
+| Parques | `auxiliary_2` | `#B5C4AB` |
+| POI geral | `auxiliary_2` | `#B5C4AB` |
+| Pin de localização | `secondary_3` | `#A99942` |
+
+> POI de negócios (restaurantes, postos, etc.) estão ocultos via `visibility: off`.
+
+---
+
+## Integração com a API
+
+### `POST /location/register`
+Registra uma localização do usuário.
+```json
+{
+  "userId": "string",
+  "latitude": number,
+  "longitude": number,
+  "accuracyMeters": number | null,
+  "capturedAt": "ISO 8601"
+}
+```
+
+### `GET /location/latest?userIds=id1,id2`
+Retorna a localização mais recente de cada usuário (todos, ou filtrado por `userIds`).
+```json
+{
+  "status": "ok",
+  "data": [{
+    "locationEventId": number,
+    "user": { "userId": "string", "username": "string", "name": "string" },
+    "latitude": number,
+    "longitude": number,
+    "accuracyMeters": number | null,
+    "capturedAt": "ISO 8601",
+    "createdAt": "ISO 8601"
+  }]
+}
+```
+
+> A URL base vem de `EXPO_PUBLIC_API_URL` no `.env`.
+> O endpoint `/location/latest` está na branch `map-data-feed` da API (ainda não mergeada em `main`).
+
+---
+
+## Tab bar — cores
+
+| Estado | Ícone | Texto | Fundo |
+|---|---|---|---|
+| Selecionado | `secondary_3` `#A99942` | `neutral_7` `#191A1A` | `auxiliary_1` `#DBEDD0` |
+| Não selecionado | `auxiliary_2` `#B5C4AB` | `auxiliary_3` `#909D88` | — |
 
 ---
 
@@ -193,45 +279,16 @@ Singleton exportado como `locationTrackingService`. Principais métodos:
 | `getStoredLocations()` | Retorna pontos salvos no AsyncStorage |
 | `clearStoredLocations()` | Limpa o storage local |
 
-**Opções de rastreamento padrão:**
-- Accuracy: `Balanced`
-- Distance interval: `10m`
-- Time interval: `10s`
-- Max stored points: `500`
-
----
-
-## Integração com a API
-
-O serviço de localização se comunica com a Safe Travels API via `locationApi.ts`:
-
-- **Endpoint:** `POST /location/register`
-- **Payload:**
-```json
-{
-  "userId": "string",
-  "latitude": number,
-  "longitude": number,
-  "accuracyMeters": number | null,
-  "capturedAt": "ISO 8601"
-}
-```
-- A URL base vem de `EXPO_PUBLIC_API_URL` no `.env`
+**Opções de rastreamento padrão:** Accuracy `Balanced` · Distância `10m` · Tempo `10s` · Max `500` pontos
 
 ---
 
 ## Comandos essenciais
 
 ```bash
-# Iniciar Expo (escolhe plataforma no terminal)
-npm run start
-
-# Abrir diretamente no Android / iOS / Web
-npm run android
-npm run ios
-npm run web
-
-# Lint / Format
+npm run start     # Expo — QR code no terminal
+npm run android   # Android (requer Android Studio)
+npm run ios       # iOS (requer Xcode, apenas macOS)
 npm run lint
 npm run format
 ```
@@ -244,13 +301,16 @@ npm run format
 - **Estilos via `StyleSheet.create`** — sem styled-components ou outras libs de estilo
 - **Design tokens centralizados** em `src/theme` — usar sempre `theme.colors`, `theme.spacing`, `theme.typography`
 - **Fontes** carregadas no `App.tsx` via `useFonts` — família Montserrat (variável)
-- **Navegação tipada** — `RootStackParamList` define todas as rotas; usar `NativeStackScreenProps` nos componentes de tela
+- **Navegação tipada** — `RootStackParamList` e `TabParamList` definem todas as rotas
+- **Instalar novas libs nativas sempre com `expo install`**, não `npm install` — garante versão compatível com o SDK
 
 ---
 
 ## Observações importantes
 
-- O `MOCK_USER_ID` em `LoginScreen.tsx` é temporário — será substituído pelo usuário autenticado quando o fluxo de auth estiver integrado
-- As telas de Login e Register ainda não têm campos de formulário reais — são placeholders para o fluxo de autenticação em desenvolvimento
-- `newArchEnabled: true` está ativo no `app.json` — a nova arquitetura do React Native está habilitada
-- A variável `EXPO_PUBLIC_API_URL` **deve** estar configurada no `.env`, caso contrário o app lança erro ao tentar registrar localização
+- `newArchEnabled: true` no `app.json` — nova arquitetura do React Native habilitada
+- `EXPO_PUBLIC_API_URL` **deve** estar configurada no `.env`
+- `react-native-maps` requer `PROVIDER_GOOGLE` explícito para `customMapStyle` funcionar no Android
+- No iOS, `customMapStyle` só funciona com Google Maps provider (requer API key) — não funciona com Apple Maps (padrão)
+- Para builds de produção, adicionar `GOOGLE_MAPS_API_KEY` no `app.json` em `android.config.googleMaps.apiKey`
+- Todos os `TextInput` têm `importantForAutofill="no"` para evitar o fundo amarelo do autofill do Android

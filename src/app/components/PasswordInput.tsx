@@ -24,6 +24,8 @@ export function PasswordInput({ placeholder = "Senha", value, onChangeText, edit
         editable={editable}
         autoCapitalize="none"
         autoCorrect={false}
+        autoComplete="off"
+        importantForAutofill="no"
       />
       <Pressable onPress={() => setVisible((v) => !v)} style={styles.toggle}>
         <Text style={styles.toggle_text}>{visible ? "Ocultar" : "Mostrar"}</Text>
