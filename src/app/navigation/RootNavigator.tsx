@@ -3,7 +3,7 @@ import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { LoginScreen } from "../screens/LoginScreen";
 import { LoginFormScreen } from "../screens/LoginFormScreen";
 import { RegisterScreen } from "../screens/RegisterScreen";
-import { HomeScreen } from "../screens/HomeScreen";
+import { TabNavigator } from "./TabNavigator";
 
 export type RootStackParamList = {
   Login: undefined;
@@ -16,11 +16,11 @@ const Stack = createNativeStackNavigator<RootStackParamList>();
 
 export function RootNavigator() {
   return (
-    <Stack.Navigator initialRouteName="Login">
-      <Stack.Screen name="Login" component={LoginScreen} options={{ title: "Safe Travels" }} />
-      <Stack.Screen name="LoginForm" component={LoginFormScreen} options={{ title: "Entrar" }} />
-      <Stack.Screen name="Register" component={RegisterScreen} options={{ title: "Criar conta" }} />
-      <Stack.Screen name="Home" component={HomeScreen} options={{ title: "Home" }} />
+    <Stack.Navigator initialRouteName="Login" screenOptions={{ headerShown: false }}>
+      <Stack.Screen name="Login" component={LoginScreen} />
+      <Stack.Screen name="LoginForm" component={LoginFormScreen} />
+      <Stack.Screen name="Register" component={RegisterScreen} />
+      <Stack.Screen name="Home" component={TabNavigator} />
     </Stack.Navigator>
   );
 }

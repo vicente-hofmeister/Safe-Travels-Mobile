@@ -41,6 +41,8 @@ export function LoginFormScreen({ navigation }: Props) {
           keyboardType="email-address"
           autoCapitalize="none"
           autoCorrect={false}
+          autoComplete="off"
+          importantForAutofill="no"
           value={email}
           onChangeText={setEmail}
           editable={!isSubmitting}

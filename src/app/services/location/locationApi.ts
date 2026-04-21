@@ -1,3 +1,17 @@
+export type LatestLocationPoint = {
+  locationEventId: number;
+  user: {
+    userId: string;
+    username: string;
+    name: string;
+  };
+  latitude: number;
+  longitude: number;
+  accuracyMeters: number | null;
+  capturedAt: string;
+  createdAt: string;
+};
+
 export type LocationRegisterPayload = {
   userId: string;
   latitude: number;
@@ -35,4 +49,21 @@ export async function registerLocation(payload: LocationRegisterPayload): Promis
         : `Falha ao registrar localizacao no servidor (${response.status}).`,
     );
   }
+}
+
+export async function getLatestLocations(userIds?: string[]): Promise<LatestLocationPoint[]> {
+  const url = new URL(`${getApiUrl()}/location/latest`);
+
+  if (userIds && userIds.length > 0) {
+    url.searchParams.set("userIds", userIds.join(","));
+  }
+
+  const response = await fetch(url.toString());
+
+  if (!response.ok) {
+    throw new Error(`Falha ao buscar localizacoes (${response.status}).`);
+  }
+
+  const json = (await response.json()) as { data: LatestLocationPoint[] };
+  return json.data;
 }

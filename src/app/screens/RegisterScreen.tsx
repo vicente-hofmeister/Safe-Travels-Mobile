@@ -57,6 +57,8 @@ export function RegisterScreen({ navigation }: Props) {
             placeholderTextColor={theme.colors.auxiliary_2}
             autoCapitalize="words"
             autoCorrect={false}
+            autoComplete="off"
+            importantForAutofill="no"
             value={name}
             onChangeText={setName}
             editable={!isSubmitting}
@@ -67,6 +69,8 @@ export function RegisterScreen({ navigation }: Props) {
             placeholderTextColor={theme.colors.auxiliary_2}
             autoCapitalize="none"
             autoCorrect={false}
+            autoComplete="off"
+            importantForAutofill="no"
             value={username}
             onChangeText={setUsername}
             editable={!isSubmitting}
@@ -78,6 +82,8 @@ export function RegisterScreen({ navigation }: Props) {
             keyboardType="email-address"
             autoCapitalize="none"
             autoCorrect={false}
+            autoComplete="off"
+            importantForAutofill="no"
             value={email}
             onChangeText={setEmail}
             editable={!isSubmitting}
