@@ -30,11 +30,19 @@ function getApiUrl(): string {
   return configuredUrl.replace(/\/$/, "");
 }
 
+async function getAuthHeaders(): Promise<HeadersInit> {
+  const { getAccessToken } = await import("../auth/authStorage");
+  const token = await getAccessToken();
+  if (!token) throw new Error("Usuário não autenticado.");
+  return { Authorization: `Bearer ${token}` };
+}
+
 export async function registerLocation(payload: LocationRegisterPayload): Promise<void> {
   const response = await fetch(`${getApiUrl()}/location/register`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
+      ...(await getAuthHeaders()),
     },
     body: JSON.stringify(payload),
   });
@@ -58,7 +66,7 @@ export async function getLatestLocations(userIds?: string[]): Promise<LatestLoca
     url.searchParams.set("userIds", userIds.join(","));
   }
 
-  const response = await fetch(url.toString());
+  const response = await fetch(url.toString(), { headers: await getAuthHeaders() });
 
   if (!response.ok) {
     throw new Error(`Falha ao buscar localizacoes (${response.status}).`);

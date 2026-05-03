@@ -25,9 +25,35 @@ export type RegisterPayload = {
   password: string;
 };
 
+const REQUEST_TIMEOUT_MS = 10_000;
+
+async function fetchWithTimeout(url: string, options: RequestInit): Promise<Response> {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
+  try {
+    return await fetch(url, { ...options, signal: controller.signal });
+  } catch (error) {
+    if (error instanceof Error && error.name === "AbortError") {
+      console.error("[Auth] Timeout ao conectar:", url);
+      throw new Error("O servidor não respondeu. Tente novamente em alguns instantes.");
+    }
+    console.error("[Auth] Erro de rede:", error);
+    throw new Error("Não foi possível conectar. Verifique sua conexão e tente novamente.");
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
 async function handleResponse(response: Response): Promise<AuthResponse> {
   const text = await response.text();
-  const body = text.trim() ? (JSON.parse(text) as Record<string, unknown>) : {};
+  let body: Record<string, unknown> = {};
+  if (text.trim()) {
+    try {
+      body = JSON.parse(text) as Record<string, unknown>;
+    } catch {
+      throw new Error("Resposta inesperada do servidor.");
+    }
+  }
   if (!response.ok) {
     const message = typeof body.message === "string" ? body.message : "Erro desconhecido.";
     throw new Error(message);
@@ -36,7 +62,7 @@ async function handleResponse(response: Response): Promise<AuthResponse> {
 }
 
 export async function loginRequest(payload: LoginPayload): Promise<AuthResponse> {
-  const response = await fetch(`${getApiUrl()}/auth/login`, {
+  const response = await fetchWithTimeout(`${getApiUrl()}/auth/login`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload),
@@ -45,7 +71,7 @@ export async function loginRequest(payload: LoginPayload): Promise<AuthResponse>
 }
 
 export async function registerRequest(payload: RegisterPayload): Promise<AuthResponse> {
-  const response = await fetch(`${getApiUrl()}/auth/register`, {
+  const response = await fetchWithTimeout(`${getApiUrl()}/auth/register`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload),
