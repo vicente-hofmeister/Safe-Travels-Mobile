@@ -1,33 +1,77 @@
 {
   "expo": {
-    "name": "repo",
-    "slug": "repo",
+    "name": "Safe Travels",
+    "slug": "safe-travels",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
     "splash": {
-      "image": "./assets/splash-icon.png",
+      "image": "./assets/images/splash-icon.png",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.vicentehofmeister.safetravels",
+      "infoPlist": {
+        "NSLocationWhenInUseUsageDescription": "Safe Travels usa sua localização para compartilhar com seu grupo de viagem.",
+        "NSLocationAlwaysAndWhenInUseUsageDescription": "Safe Travels usa sua localização em segundo plano para manter o grupo atualizado mesmo com o app fechado.",
+        "UIBackgroundModes": [
+          "location",
+          "fetch"
+        ]
+      }
     },
     "android": {
+      "package": "com.vicentehofmeister.safetravels",
+      "config": {
+        "googleMaps": {
+          "apiKey": "AIzaSyBM6EFRc6I3i2f4FS_CuDAYnQjqj4hZnbk"
+        }
+      },
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
       "edgeToEdgeEnabled": true,
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "permissions": [
+        "ACCESS_COARSE_LOCATION",
+        "ACCESS_FINE_LOCATION",
+        "ACCESS_BACKGROUND_LOCATION",
+        "FOREGROUND_SERVICE",
+        "FOREGROUND_SERVICE_LOCATION",
+        "android.permission.ACCESS_COARSE_LOCATION",
+        "android.permission.ACCESS_FINE_LOCATION",
+        "android.permission.ACCESS_BACKGROUND_LOCATION",
+        "android.permission.FOREGROUND_SERVICE",
+        "android.permission.FOREGROUND_SERVICE_LOCATION"
+      ]
     },
     "web": {
       "favicon": "./assets/images/favicon.png"
     },
     "plugins": [
-      "expo-font"
-    ]
+      "expo-font",
+      "expo-dev-client",
+      [
+        "expo-location",
+        {
+          "locationAlwaysAndWhenInUsePermission": "Safe Travels usa sua localização para compartilhar com seu grupo.",
+          "locationAlwaysPermission": "Safe Travels usa sua localização em segundo plano para manter o grupo atualizado.",
+          "locationWhenInUsePermission": "Safe Travels usa sua localização para mostrar sua posição no mapa.",
+          "isAndroidBackgroundLocationEnabled": true,
+          "isAndroidForegroundServiceEnabled": true
+        }
+      ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "1734ec93-2a32-43d8-bd69-1254db513f4a"
+      }
+    },
+    "owner": "vicente_hofmeister"
   }
 }

@@ -1,6 +1,8 @@
+import "./src/app/services/location/backgroundLocationTask";
 import React from "react";
 import { NavigationContainer } from "@react-navigation/native";
 import { RootNavigator } from "./src/app/navigation/RootNavigator";
+import { navigationRef } from "./src/app/navigation/navigationRef";
 import { useFonts } from "expo-font";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import montserratItalic from "./assets/fonts/Montserrat-Italic-VariableFont_wght.ttf";
@@ -18,7 +20,7 @@ export default function App() {
 
   return (
     <SafeAreaProvider>
-      <NavigationContainer>
+      <NavigationContainer ref={navigationRef}>
         <RootNavigator />
       </NavigationContainer>
     </SafeAreaProvider>

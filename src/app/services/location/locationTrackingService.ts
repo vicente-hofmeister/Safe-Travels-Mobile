@@ -1,6 +1,7 @@
 import * as Location from "expo-location";
 import { appendStoredLocation, clearStoredLocations, readStoredLocations } from "./locationStorage";
 import { registerLocation } from "./locationApi";
+import { BACKGROUND_LOCATION_TASK } from "./backgroundLocationTask";
 import type {
   LocationTrackingOptions,
   LocationSampleSource,
@@ -146,6 +147,37 @@ class LocationTrackingService {
 
   public async clearStoredLocations(): Promise<void> {
     await clearStoredLocations();
+  }
+
+  public async startBackgroundTracking(): Promise<void> {
+    const { granted } = await Location.requestBackgroundPermissionsAsync();
+    if (!granted) throw new Error("Permissão de localização em background negada.");
+
+    const already = await Location.hasStartedLocationUpdatesAsync(BACKGROUND_LOCATION_TASK);
+    if (already) return;
+
+    await Location.startLocationUpdatesAsync(BACKGROUND_LOCATION_TASK, {
+      accuracy: Location.Accuracy.Balanced,
+      distanceInterval: 50,
+      timeInterval: 15 * 60 * 1000,
+      showsBackgroundLocationIndicator: true,
+      foregroundService: {
+        notificationTitle: "Safe Travels",
+        notificationBody: "Compartilhando localização com o grupo.",
+        notificationColor: "#4E3FCA",
+      },
+    });
+  }
+
+  public async stopBackgroundTracking(): Promise<void> {
+    const running = await Location.hasStartedLocationUpdatesAsync(BACKGROUND_LOCATION_TASK);
+    if (running) {
+      await Location.stopLocationUpdatesAsync(BACKGROUND_LOCATION_TASK);
+    }
+  }
+
+  public async isBackgroundTrackingActive(): Promise<boolean> {
+    return Location.hasStartedLocationUpdatesAsync(BACKGROUND_LOCATION_TASK);
   }
 
   private async handleLocationUpdate(
