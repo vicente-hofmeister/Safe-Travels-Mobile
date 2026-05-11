@@ -1,0 +1,28 @@
+name: Development Build
+
+on:
+  pull_request:
+    branches: [main]
+
+jobs:
+  build:
+    name: EAS Development Build (Android)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - uses: expo/expo-github-action@v8
+        with:
+          eas-version: latest
+          token: ${{ secrets.EXPO_TOKEN }}
+
+      - name: Build development APK
+        run: eas build --profile development --platform android --non-interactive

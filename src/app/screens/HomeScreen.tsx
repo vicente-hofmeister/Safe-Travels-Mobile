@@ -7,6 +7,10 @@ export function HomeScreen() {
   const [locationText, setLocationText] = useState("Carregando localizacao...");
 
   useEffect(() => {
+    locationTrackingService.startBackgroundTracking().catch(() => {});
+  }, []);
+
+  useEffect(() => {
     let isMounted = true;
 
     async function loadLocation() {
