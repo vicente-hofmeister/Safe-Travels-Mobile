@@ -83,9 +83,14 @@ export function MapScreen() {
 
         if (!isMounted) return;
 
-        const pins: GroupLocationPin[] = groups.flatMap((g, i) =>
-          locsPerGroup[i].map((loc) => ({ ...loc, groupName: g.name })),
-        );
+        const seen = new Set<string>();
+        const pins: GroupLocationPin[] = groups
+          .flatMap((g, i) => locsPerGroup[i].map((loc) => ({ ...loc, groupName: g.name })))
+          .filter((pin) => {
+            if (seen.has(pin.locationEventId)) return false;
+            seen.add(pin.locationEventId);
+            return true;
+          });
 
         console.log(`[Map] Pins de grupos: ${pins.length}`);
         setGroupLocations(pins);
@@ -156,7 +161,7 @@ export function MapScreen() {
           coordinate={{ latitude: loc.latitude, longitude: loc.longitude }}
           title={loc.groupName}
           description={new Date(loc.capturedAt).toLocaleTimeString("pt-BR")}
-          pinColor={theme.colors.primary}
+          pinColor={theme.colors.tertiary_4}
         />
       ))}
     </MapView>
