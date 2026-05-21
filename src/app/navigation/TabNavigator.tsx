@@ -4,7 +4,7 @@ import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { HomeScreen } from "../screens/HomeScreen";
 import { TripsScreen } from "../screens/TripsScreen";
 import { MapScreen } from "../screens/MapScreen";
-import { GroupsScreen } from "../screens/GroupsScreen";
+import { GroupsNavigator } from "./GroupsNavigator";
 import { ProfileScreen } from "../screens/ProfileScreen";
 import { theme } from "../../theme";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -133,7 +133,7 @@ export function TabNavigator() {
       />
       <Tab.Screen
         name="Groups"
-        component={GroupsScreen}
+        component={GroupsNavigator}
         options={{
           tabBarLabel: ({ focused }) => <TabLabel label="Groups" focused={focused} />,
           tabBarIcon: ({ color }) => <GroupsIcon color={color} />,
