@@ -2,7 +2,7 @@ import React from "react";
 import { Text } from "react-native";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { HomeScreen } from "../screens/HomeScreen";
-import { TripsScreen } from "../screens/TripsScreen";
+import { TripsNavigator } from "./TripsNavigator";
 import { MapScreen } from "../screens/MapScreen";
 import { GroupsNavigator } from "./GroupsNavigator";
 import { ProfileScreen } from "../screens/ProfileScreen";
@@ -117,7 +117,7 @@ export function TabNavigator() {
       />
       <Tab.Screen
         name="Trips"
-        component={TripsScreen}
+        component={TripsNavigator}
         options={{
           tabBarLabel: ({ focused }) => <TabLabel label="Trips" focused={focused} />,
           tabBarIcon: ({ color }) => <TripsIcon color={color} />,

@@ -2,12 +2,18 @@ import React, { useEffect, useState } from "react";
 import { View, Text, StyleSheet } from "react-native";
 import { theme } from "../../theme";
 import { locationTrackingService } from "../services/location";
+import { getHasActiveTrip } from "../services/trip/tripContextStorage";
 
 export function HomeScreen() {
   const [locationText, setLocationText] = useState("Carregando localizacao...");
 
   useEffect(() => {
-    locationTrackingService.startBackgroundTracking().catch(() => {});
+    // Só inicia background tracking se houver trip ativa
+    getHasActiveTrip().then((hasActive) => {
+      if (hasActive) {
+        locationTrackingService.startBackgroundTracking().catch(() => {});
+      }
+    }).catch(() => {});
   }, []);
 
   useEffect(() => {
@@ -17,9 +23,7 @@ export function HomeScreen() {
       try {
         const point = await locationTrackingService.captureCurrentPosition();
 
-        if (!isMounted) {
-          return;
-        }
+        if (!isMounted) return;
 
         if (!point) {
           setLocationText("Permissao de localizacao negada.");
