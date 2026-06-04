@@ -2,6 +2,7 @@ import * as Location from "expo-location";
 import * as TaskManager from "expo-task-manager";
 import { registerLocation } from "./locationApi";
 import { getStoredUser } from "../auth/authStorage";
+import { getHasActiveTrip } from "../trip/tripContextStorage";
 
 export const BACKGROUND_LOCATION_TASK = "safe-travels-background-location";
 
@@ -13,6 +14,13 @@ TaskManager.defineTask(BACKGROUND_LOCATION_TASK, async ({ data, error }) => {
 
   const { locations } = data as { locations: Location.LocationObject[] };
   if (!locations?.length) return;
+
+  // Checar cache antes de qualquer chamada à API
+  const hasActiveTrip = await getHasActiveTrip();
+  if (!hasActiveTrip) {
+    console.log("[BackgroundLocation] Sem viagem ativa — envio ignorado.");
+    return;
+  }
 
   const user = await getStoredUser();
   if (!user) return;
