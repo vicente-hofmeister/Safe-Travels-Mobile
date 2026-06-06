@@ -2,6 +2,7 @@ import * as Location from "expo-location";
 import { appendStoredLocation, clearStoredLocations, readStoredLocations } from "./locationStorage";
 import { registerLocation } from "./locationApi";
 import { BACKGROUND_LOCATION_TASK } from "./backgroundLocationTask";
+import { getTrackingSettings } from "./trackingSettingsStorage";
 import type {
   LocationTrackingOptions,
   LocationSampleSource,
@@ -118,7 +119,12 @@ class LocationTrackingService {
       throw new Error("Servicos de localizacao estao desativados no aparelho.");
     }
 
-    const mergedOptions = this.mergeOptions(options);
+    const settings = await getTrackingSettings();
+    const mergedOptions = this.mergeOptions({
+      accuracy: settings.accuracy,
+      timeInterval: settings.foregroundIntervalMs,
+      ...options,
+    });
 
     this.subscription = await Location.watchPositionAsync(
       {
@@ -150,6 +156,9 @@ class LocationTrackingService {
   }
 
   public async startBackgroundTracking(): Promise<void> {
+    const settings = await getTrackingSettings();
+    if (!settings.backgroundEnabled) return;
+
     const { granted } = await Location.requestBackgroundPermissionsAsync();
     if (!granted) throw new Error("Permissão de localização em background negada.");
 
@@ -157,9 +166,9 @@ class LocationTrackingService {
     if (already) return;
 
     await Location.startLocationUpdatesAsync(BACKGROUND_LOCATION_TASK, {
-      accuracy: Location.Accuracy.Balanced,
+      accuracy: settings.accuracy,
       distanceInterval: 50,
-      timeInterval: 15 * 60 * 1000,
+      timeInterval: settings.backgroundIntervalMs,
       showsBackgroundLocationIndicator: true,
       foregroundService: {
         notificationTitle: "Safe Travels",

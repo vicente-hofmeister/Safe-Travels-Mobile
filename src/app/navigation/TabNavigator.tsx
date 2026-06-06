@@ -5,7 +5,7 @@ import { HomeScreen } from "../screens/HomeScreen";
 import { TripsNavigator } from "./TripsNavigator";
 import { MapScreen } from "../screens/MapScreen";
 import { GroupsNavigator } from "./GroupsNavigator";
-import { ProfileScreen } from "../screens/ProfileScreen";
+import { ProfileNavigator } from "./ProfileNavigator";
 import { theme } from "../../theme";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Svg, { Path, Circle, Rect } from "react-native-svg";
@@ -141,7 +141,7 @@ export function TabNavigator() {
       />
       <Tab.Screen
         name="Profile"
-        component={ProfileScreen}
+        component={ProfileNavigator}
         options={{
           tabBarLabel: ({ focused }) => <TabLabel label="Profile" focused={focused} />,
           tabBarIcon: ({ color }) => <ProfileIcon color={color} />,
