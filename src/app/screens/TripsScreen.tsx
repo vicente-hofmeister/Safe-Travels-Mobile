@@ -45,11 +45,7 @@ function TripCard({ trip, onPress }: { trip: TripSummary; onPress: () => void })
           <Text style={styles.metaText}>Início: {formatDate(trip.startedAt)}</Text>
           {trip.endedAt ? (
             <Text style={styles.metaText}>Fim: {formatDate(trip.endedAt)}</Text>
-          ) : (
-            <View style={styles.activeBadge}>
-              <Text style={styles.activeBadgeText}>ativa</Text>
-            </View>
-          )}
+          ) : null}
         </View>
       </View>
     </TouchableOpacity>
@@ -254,18 +250,5 @@ const styles = StyleSheet.create({
     color: theme.colors.neutral_5,
     fontFamily: "Montserrat",
   },
-  activeBadge: {
-    backgroundColor: theme.colors.primary_1,
-    borderRadius: 4,
-    paddingHorizontal: 6,
-    paddingVertical: 2,
-  },
-  activeBadgeText: {
-    fontSize: 10,
-    fontWeight: "700",
-    color: theme.colors.primary,
-    fontFamily: "Montserrat",
-    textTransform: "uppercase",
-    letterSpacing: 0.5,
-  },
+
 });

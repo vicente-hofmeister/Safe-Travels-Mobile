@@ -5,6 +5,7 @@ import { LoginScreen } from "../screens/LoginScreen";
 import { LoginFormScreen } from "../screens/LoginFormScreen";
 import { RegisterScreen } from "../screens/RegisterScreen";
 import { TabNavigator } from "./TabNavigator";
+import { UserProfileScreen } from "../screens/UserProfileScreen";
 import { getAccessToken } from "../services/auth/authStorage";
 import { theme } from "../../theme";
 
@@ -13,6 +14,7 @@ export type RootStackParamList = {
   LoginForm: undefined;
   Register: undefined;
   Home: undefined;
+  UserProfile: { userId: string; username: string };
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -40,6 +42,7 @@ export function RootNavigator() {
       <Stack.Screen name="LoginForm" component={LoginFormScreen} />
       <Stack.Screen name="Register" component={RegisterScreen} />
       <Stack.Screen name="Home" component={TabNavigator} />
+      <Stack.Screen name="UserProfile" component={UserProfileScreen} />
     </Stack.Navigator>
   );
 }

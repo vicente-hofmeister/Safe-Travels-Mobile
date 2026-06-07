@@ -28,9 +28,17 @@ function getInitials(name: string): string {
     .toUpperCase();
 }
 
-function MemberRow({ member, isOwner }: { member: GroupMember; isOwner: boolean }) {
+function MemberRow({
+  member,
+  isOwner,
+  onPress,
+}: {
+  member: GroupMember;
+  isOwner: boolean;
+  onPress: () => void;
+}) {
   return (
-    <View style={styles.memberRow}>
+    <TouchableOpacity style={styles.memberRow} onPress={onPress} activeOpacity={0.7}>
       <View style={styles.avatar}>
         <Text style={styles.avatarText}>{getInitials(member.name)}</Text>
       </View>
@@ -45,7 +53,7 @@ function MemberRow({ member, isOwner }: { member: GroupMember; isOwner: boolean 
           <Text style={styles.ownerBadgeText}>admin</Text>
         </View>
       )}
-    </View>
+    </TouchableOpacity>
   );
 }
 
@@ -132,7 +140,16 @@ export function GroupDetailScreen() {
             </View>
           }
           renderItem={({ item }) => (
-            <MemberRow member={item} isOwner={item.userId === group.owner.userId} />
+            <MemberRow
+              member={item}
+              isOwner={item.userId === group.owner.userId}
+              onPress={() =>
+                navigation.navigate("UserProfile", {
+                  userId: item.userId,
+                  username: item.username,
+                })
+              }
+            />
           )}
           contentContainerStyle={styles.listContent}
           showsVerticalScrollIndicator={false}
