@@ -48,7 +48,7 @@ function MapIcon({ color }: { color: string }) {
         d="M12 2C8.13 2 5 5.13 5 9C5 14.25 12 22 12 22C12 22 19 14.25 19 9C19 5.13 15.87 2 12 2Z"
         fill={color}
       />
-      <Circle cx={12} cy={9} r={2.5} fill={theme.colors.white} />
+      <Circle cx={12} cy={9} r={2.5} fill={theme.colors.auxiliary_1} />
     </Svg>
   );
 }
